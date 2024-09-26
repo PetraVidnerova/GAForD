@@ -62,3 +62,19 @@ def order_crossover(p1, p2):
     
     return ch1, ch2
     
+
+def tournament_select(population):
+    inds = np.random.choice(population, size=3, replace=False)
+    best = None
+    best_f = -1
+    for ind in inds:
+        if ind.fitness > best_f:
+            best = ind
+            best_f = ind.fitness
+    return best
+
+def mutate(ind):
+
+    pos1, pos2 = np.random.choice(ind.n, size=2, replace=False)
+    ind.ind[pos1], ind.ind[pos2] = ind.ind[pos2], ind.ind[pos1]
+    
