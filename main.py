@@ -1,67 +1,108 @@
+
+import multiprocessing
 import random
 
 import numpy as np
 
-from individual import Individual, order_crossover, tournament_select, mutate
-
-# x = Individual(10)
-# y = Individual(10)
-
-# print(x)
-# print(y)
-
-# order_crossover(x, y)
-
-N = 30
-n = 10
-target = np.arange(n)
-
-population = []
+from individual import Individual, order_crossover, tournament_select, mutate, cyclic_crossover, partially_mapped_crossover, Mutation
+from fitness import Fitness
+from population import Population
 
 
-for i in range(N):
-    population.append(Individual(n))
+class F():
 
-def fitness(x, t=target):
-    return np.mean(x == t)
-
-for ind in population:
-    ind.eval(fitness)
+    def evaluate(self, individual):
+        return (individual == np.arange(10)).sum(), 0
 
 
-fitnesses = [ ind.fitness for ind in population]
-print(max(fitnesses), np.mean(fitnesses))
+#f = F()
 
-elitte = []
-gen = 1
-while True:
-    new_pop = []
-    new_pop.extend(elitte)
+f = Fitness("data/LRM_ER_rewired/LRM_ER_nNodes50_rew0_sim0.csv")
+print(f.matrix)
+
+vertices = f.matrix.sum(axis=1)
+mutation = Mutation(vertices)
+
+N = 120  # size of populations
+n = 50
+k = 20   # number of populations
+
+PCX = 0.9
+PMUT = 0.2
+steps = 100
+
+
+def run(pop):
+    return pop.run(PCX, PMUT, steps=steps), pop
+
+
+def islands():
+    populations = []
+    for i in range(k):
+        pop = Population(n, N, f, mutation)
+        populations.append(pop)
+
+    fitnesses = [ind.fitness for ind in pop.population]
+    print(max(fitnesses), np.mean(fitnesses))
+
+    pool = multiprocessing.Pool(10)
+    gen = 0
+    while True:
+
+        #        with multiprocessing.Pool(10) as pool:
+        ret = pool.map(run, populations)
+        ret = list(ret)
+        populations = [x[1] for x in ret]
+        results = [x[0] for x in ret]
+        print(gen, ":", results)
+        gen += steps
+
+        if gen % 1000 == 0:
+            elittes = [pop.elitte for pop in populations]
+            # print(elittes)
+            for pop, elitte in zip(populations, elittes[1:]+elittes[:1]):
+                # pop.update_elitte(elitte[0])
+                pop.update_elitte(elitte[0])
+            # for i, e in enumerate(elittes):
+            #    for j, pop in enumerate(populations):
+            #        if i != j:
+            #            pop.update_elitte([e[0]])
+
+#            for pop, elitte in zip(populations, elittes[-1:]+elittes[:-1]):
+#                pop.update_elitte(elitte)
+
+            #pop = random.choice(populations)
+            if gen % 20000 == 0:
+                for pop in populations:
+                    pop.restart()
+
+#            print(elittes)
+            l = [ i for e in elittes for i in e]
+ #           print(l)
+            inds = sorted(l, key=lambda x: x.fitness, reverse=True)
+            print(inds[0].fitness, inds[0].F)
+            print(inds[0].ind)
+            if inds[0].fitness == 0:
+                return
     
-    while len(new_pop) < N:
-        p1 = tournament_select(population)
-        p2 = tournament_select(population)
 
-        if np.random.rand() < 0.6:
-            ch1, ch2 = order_crossover(p1, p2)
-            ch1.eval(fitness)
-            ch2.eval(fitness)
-        else:
-            ch1, ch2 = p1, p2
+def single():
 
-        for child in ch1, ch2:
-            if np.random.rand() < 0.2:
-                mutate(child) #mutation in place
-                
-        new_pop.append(ch1)
-        new_pop.append(ch2)
+    pop = Population(n, N, f)
+    gen = 0
+    while True:
+
+        ret = run(pop)
         
-    population = sorted(new_pop, key=lambda x: x.fitness, reverse=True)
-    elitte = population[:3]
-    
-    fitnesses = [ ind.fitness for ind in population]
-    print(gen, ":", max(fitnesses), np.mean(fitnesses))
-    gen += 1
+        print(gen, ":", ret)
+        gen += 100
 
-    if max(fitnesses) == 1:
-        break
+        if gen % 1000 == 0: 
+            inds = sorted([ i for i in pop.elitte], key=lambda x: x.fitness, reverse=True)
+            print(inds[0].fitness, inds[0].F)
+            print(inds[0].ind)
+    
+if __name__ == "__main__":
+
+    islands()
+    #single()
