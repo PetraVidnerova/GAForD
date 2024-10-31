@@ -85,7 +85,7 @@ def islands(sourcename):
 #            print(elittes)
             l = [ i for e in elittes for i in e]
  #           print(l)
-            inds = sorted(l, key=lambda x: x.fitness, reverse=True)
+            inds = sorted(l, key=lambda x: (x.F2, x.fitness), reverse=True)
             print("RESULT:", inds[0].fitness, inds[0].F, inds[0].F2)
             print(inds[0].ind)
             best = (inds[0].fitness, inds[0].F, inds[0].F2)

@@ -44,7 +44,9 @@ class Fitness:
 
         return (
 #            - (np.absolute((self.matrix - matrix2)).sum())/ (n*(n-1)/2 - fix_points*(fix_points-1)/2),
-            - 10*same_vertices - (np.absolute((self.matrix - matrix2)).sum())/ (n*(n-1)/2 - fix_points*(fix_points-1)/2),
+            - 10*same_vertices - (np.absolute((self.matrix - matrix2)).sum())/ (n*(n-1)/2)
+            - (fix_points/n),
+#            - same_vertices - 0.001*fix_points/n - (np.absolute((self.matrix - matrix2)).sum())/ (n*(n-1)/2),
             fix_points,
             - (np.absolute((self.matrix - matrix2)).sum())/ (n*(n-1)/2)
             )

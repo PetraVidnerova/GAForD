@@ -102,7 +102,7 @@ class Population():
             new_pop.append(ch1)
             new_pop.append(ch2)
         
-        self.population = sorted(new_pop, key=lambda x: (x.fitness, x.F2), reverse=True)
+        self.population = sorted(new_pop, key=lambda x: (x.F2, x.fitness), reverse=True)
         #self.elitte = self.population[:self.elitte_size]
         self.elitte = []
         for i in self.population:

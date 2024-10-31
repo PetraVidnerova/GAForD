@@ -1,13 +1,20 @@
+import sys
 import pandas as pd
+import numpy as np
+
+DIR = sys.argv[1]
 
 def extract_result(filename):
-    with open(filename, "r") as f:
-        last_result = None
-        for line in f:
-            if line.startswith("RESULT:"):
-                last_result = line.strip()
-    _, _, fixed_points, f = last_result.split()
-    return fixed_points, f 
+    try:
+        with open(f"{DIR}/{filename}", "r") as f:
+            last_result = None
+            for line in f:
+                if line.startswith("RESULT:"):
+                    last_result = line.strip()
+        _, _, fixed_points, f = last_result.split()
+        return int(fixed_points), -float(f)
+    except:
+        return np.nan, np.nan
 
 df_list = []
 for rew in range(3):
@@ -19,8 +26,8 @@ for rew in range(3):
                     "rew": rew,
                     "sim": sim,
                     "k": k,
-                    "F": -float(f),
-                    "fixed_points": int(fixed_points)
+                    "F": f,
+                    "fixed_points": fixed_points
                 }
             )
 
@@ -29,7 +36,7 @@ df = (
     .pivot(index=["rew", "sim"], columns="k")
     .swaplevel(0, 1, axis=1)
 )
-print(df)
+#print(df)
 
 df = (
     pd.DataFrame(df_list)
