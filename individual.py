@@ -14,16 +14,18 @@ class Individual:
 
         self.fitness = None
         self.F = None
+        self.F2 = None
         
     def copy(self):
         x = Individual(self.n, empty=True)
         x.ind[:] = self.ind
         x.fitness = self.fitness
         x.F = self.F
+        x.F2 = self.F2
         return x
             
     def evaluate(self, f):
-        self.fitness, self.F = f(self.ind)
+        self.fitness, self.F, self.F2 = f(self.ind)
         
     @property
     def n(self):
@@ -177,11 +179,21 @@ def partially_mapped_crossover(p1, p2):
 def tournament_select(population):
     inds = np.random.choice(population, size=3, replace=False)
     best = None
-    best_f = -1
+    best_f = -100000000000
+    best_c = 100000 # TODO put here someting reasonable
+    best_c2 = -100000000000
     for ind in inds:
         if ind.fitness > best_f:
             best = ind
             best_f = ind.fitness
+            best_c = ind.F
+            best_c2 = ind.F2
+        elif ind.fitness ==  best_f and ind.F2 > best_c2:
+            best = ind
+            best_f = ind.fitness
+            best_c = ind.F
+            best_c2 = ind.F
+    assert best is not None
     return best
 
 def mutate(ind):
