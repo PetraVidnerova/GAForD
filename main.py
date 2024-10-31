@@ -53,6 +53,7 @@ def islands(sourcename):
     pool = multiprocessing.Pool(25)
     gen = 0
     last_best = None
+    best_ind = None
     stay_same = 0
     while True:
 
@@ -84,11 +85,14 @@ def islands(sourcename):
 
 #            print(elittes)
             l = [ i for e in elittes for i in e]
+            if best_ind is not None:
+                l.append(best_ind)
  #           print(l)
             inds = sorted(l, key=lambda x: (x.F2, x.fitness), reverse=True)
             print("RESULT:", inds[0].fitness, inds[0].F, inds[0].F2)
             print(inds[0].ind)
             best = (inds[0].fitness, inds[0].F, inds[0].F2)
+            best_ind_candidate = inds[0]
             if inds[0].F2 == 0:
                 print("Solution found.")
                 return
@@ -121,9 +125,9 @@ def islands(sourcename):
                             pop.elitte = [all_elitte[i]]
                         else:
                             pop.elitte = []
-
-#                    for pop in populations:
-#                        print(pop.elitte[0].fitness, pop.elitte[0].F, pop.elitte[0].ind)
+                            
+                            #                    for pop in populations:
+                            #                        print(pop.elitte[0].fitness, pop.elitte[0].F, pop.elitte[0].ind)
                             
                 else:
                     print(" * *** * MIXING POPULATIONS * ** *")
@@ -135,9 +139,13 @@ def islands(sourcename):
                         groups.append(group)
                     for i, pop in enumerate(populations):
                         pop.append(groups[ (i+1) % k])
-            else:
+                        
+            elif last_best is None or (best[2] > last_best[2] or
+                  (best[2] == last_best[2] and best[0] > last_best[0]) or
+                  (best[2] == last_best[2] and best[0] == last_best[0] and best[1] < last_best[1])):
                 last_best = best    
                 stay_same = 0
+                best_ind = best_ind_candidate
             
 #        if gen >= 10000:
 #            return

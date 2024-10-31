@@ -5,19 +5,29 @@ import numpy as np
 DIR = sys.argv[1]
 
 def extract_result(filename):
+    df_run = []
     try:
         with open(f"{DIR}/{filename}", "r") as f:
             last_result = None
+            i = 0 
             for line in f:
                 if line.startswith("RESULT:"):
                     last_result = line.strip()
-        _, _, fixed_points, f = last_result.split()
+                    _, _, fixed_points, f = last_result.split()
+                    df_run.append({
+                        "iter": i,
+                        "F": -float(f),
+                        "fixed_points": fixed_points
+                    })
+                    i += 1
+        df = pd.DataFrame(df_run)
+        #        df.to_csv(f"{DIR}/{filename}.csv")
         return int(fixed_points), -float(f)
     except:
         return np.nan, np.nan
 
 df_list = []
-for rew in range(3):
+for rew in range(4):
     for sim in range(10):
         for k in range(10):
             fixed_points, f = extract_result(f"rew{rew}_sim{sim}_{k}.log")

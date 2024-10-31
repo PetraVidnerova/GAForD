@@ -188,11 +188,16 @@ def tournament_select(population):
             best_f = ind.fitness
             best_c = ind.F
             best_c2 = ind.F2
-        elif ind.fitness ==  best_f and ind.F < best_c:
+        elif ind.fitness ==  best_f and ind.F2 > best_c2:
             best = ind
             best_f = ind.fitness
             best_c = ind.F
             best_c2 = ind.F
+        elif ind.fitness ==  best_f and ind.F2 == best_c2 and ind.F < best_c:
+            best = ind
+            best_f = ind.fitness
+            best_c = ind.F
+            best_c2 = ind.F            
     assert best is not None
     return best
 

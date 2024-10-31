@@ -19,7 +19,7 @@ class Population():
         for ind in self.population:
             ind.evaluate(fitness.evaluate)
 
-        self.elitte_size = 6
+        self.elitte_size = 10
         self.elitte = []
         self.pmut = None
 
@@ -102,7 +102,7 @@ class Population():
             new_pop.append(ch1)
             new_pop.append(ch2)
         
-        self.population = sorted(new_pop, key=lambda x: (x.F2, x.fitness), reverse=True)
+        self.population = sorted(new_pop, key=lambda x: (x.F2,  x.fitness), reverse=True)
         #self.elitte = self.population[:self.elitte_size]
         self.elitte = []
         for i in self.population:
@@ -113,8 +113,23 @@ class Population():
                     break
             if not same:
                 self.elitte.append(i.copy())
+            if len(self.elitte) >= self.elitte_size // 2:
+                break
+
+        self.population = sorted(new_pop, key=lambda x: (x.fitness,  x.F2), reverse=True)
+        #self.elitte = self.population[:self.elitte_size]
+        for i in self.population:
+            same = False
+            for e in self.elitte:
+                if np.all(e.ind == i.ind):
+                    same = True
+                    break
+            if not same:
+                self.elitte.append(i.copy())
             if len(self.elitte) >= self.elitte_size:
                 break
+
+            
 
 
         diverse_pop = []
