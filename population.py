@@ -10,7 +10,7 @@ class Population():
         self.n = n
         self.N = N
         self.fitness = fitness
-        self.mutation = mutation
+        self.mutation= mutation
 
         self.population = []
         for i in range(N):
@@ -19,9 +19,10 @@ class Population():
         for ind in self.population:
             ind.evaluate(fitness.evaluate)
 
-        self.elitte_size = 10
+        self.elitte_size = 30
         self.elitte = []
         self.pmut = None
+        self.thau = 0
 
     def extract(self, k):
         group = []
@@ -48,7 +49,7 @@ class Population():
         #       print([x.fitness for x in self.elitte])
         #       print([x.fitness for x in elitte])
         # $#        self.population.extend(elitte)
-        #        self.elitte = sorted(self.elitte + elitte, key=lambda x: x.fitness, reverse=True)[:self.elitte_size]
+        #        self.elitte = sortedself.elitte + elitte, key=lambda x: x.fitness, reverse=True)[:self.elitte_size]
         #        self.elitte = elitte
         # for e in self.elitte:
         #    if np.all(e.ind == elitte.ind):
@@ -70,7 +71,7 @@ class Population():
 
     def run(self, pcx, pmut, steps=1):
         if self.pmut is None:
-            self.pmut = pmut 
+            self.pmut =pmut 
         for _ in range(steps):
             ret = self.step(pcx)
         return ret
@@ -86,7 +87,7 @@ class Population():
             # cx = np.random.choice([order_crossover, cyclic_crossover, partially_mapped_crossover],
             #                       p=[0.45, 0.54, 0.01])
             #cx = cyclic_crossover
-            cx = np.random.choice([order_crossover, cyclic_crossover], p=(0.5, 0.5))
+            cx = np.random.choice([order_crossover, cyclic_crossover], p=(0.3, 0.7))
             if np.random.random() < pcx:
                 ch1, ch2 = cx(p1, p2)
                 ch1.evaluate(self.fitness.evaluate)
@@ -96,13 +97,16 @@ class Population():
 
             for child in ch1, ch2:
                 if np.random.random() < self.pmut:
-                    mutate(child) #mutation in place
+                    if np.random.random() < 0.1 + 0.5*self.thau:
+                        mutate(child)
+                    else:
+                        self.mutation.mutate(child) #mutation in place
                     child.evaluate(self.fitness.evaluate)
                     
             new_pop.append(ch1)
             new_pop.append(ch2)
         
-        self.population = sorted(new_pop, key=lambda x: (x.F2,  x.fitness), reverse=True)
+        self.population = sorted(new_pop, key=lambda x: (x.F2,  -x.F, x.fitness), reverse=True)
         #self.elitte = self.population[:self.elitte_size]
         self.elitte = []
         for i in self.population:
@@ -115,8 +119,8 @@ class Population():
                 self.elitte.append(i.copy())
             if len(self.elitte) >= self.elitte_size // 2:
                 break
-
-        self.population = sorted(new_pop, key=lambda x: (x.fitness,  x.F2), reverse=True)
+        
+        self.population = sorted(new_pop, key=lambda x: (x.fitness,  x.F2, -x.F), reverse=True)
         #self.elitte = self.population[:self.elitte_size]
         for i in self.population:
             same = False
@@ -128,7 +132,6 @@ class Population():
                 self.elitte.append(i.copy())
             if len(self.elitte) >= self.elitte_size:
                 break
-
             
 
 
@@ -151,6 +154,6 @@ class Population():
         # 3: self.pmut = 0.15 + max(0.5-diversity, 0) * (0.95 - 0.15)
         #        print(diversity, self.pmut)
         #4: self.pmut = 0.15 +  (1 - diversity) * (0.95 - 0.15)
-        self.pmut =    (1 - diversity) 
+        self.pmut = 0.2 + 0.4*(1 - diversity)
         return float(-self.population[0].fitness), float(-np.mean([i.fitness for i in self.population]))
 

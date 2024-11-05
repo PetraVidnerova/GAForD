@@ -207,16 +207,45 @@ def mutate(ind):
     ind.ind[pos1], ind.ind[pos2] = ind.ind[pos2], ind.ind[pos1]
     
 class Mutation():
-    def __init__(self, vertices):
+    def __init__(self, vertices, centralities, centralities2):
         self.vertices = vertices
-
+        self.centralities = centralities
+        self.centralities2 = centralities2
+        
     def mutate(self, ind):
         n = ind.n
-        pos = np.random.choice(n, size=1)
-        possibilities = self.vertices == self.vertices[pos]
-        possibilities[pos] = False
-        possibilities = np.where(possibilities)[0]
-        if len(possibilities) > 0:
-            pos2 = random.choice(possibilities)
-            ind.ind[pos], ind.ind[pos2] = ind.ind[pos2], ind.ind[pos]
+        m = random.randrange(1,5)
+        for _ in range(1):
+            criterion = self.vertices + 10*self.centralities2
+
+            pos = random.randrange(n)
+            """
+            xxx = np.abs(criterion - criterion[ind.ind])
+            if xxx.sum() == 0:
+                pos = random.randrange(n)
+            else:
+                xxx /= xxx.sum()
+                pos = np.random.choice(n, size=1, p=xxx)
+            """
+            """
+            r = np.random.random()
+            if r  < 0.3:
+            criterion = self.vertices
+            elif r < 0.6:
+            criterion = self.centralities
+            else:
+            criterion = self.centralities2
+            """
+            #criterion = self.centralities + self.centralities2 + self.vertices
+            cost = np.abs(criterion - criterion[ind.ind[pos]]) #/(criterion+criterion[ind.ind[pos]])
+            + np.abs(criterion[ind.ind] - criterion[pos]) #/(criterion[ind.ind]+criterion[pos])
+            - np.abs(criterion - criterion[ind.ind]) #/(criterion+criterion[ind.ind])
+            possibilities = 1/(cost + 0.000001)
+            possibilities[pos] = 0
+            possibilities[ind.ind[pos]] = 0
+            #        possibilities[ind.ind[pos]] = np.quantile(possibilities[possibilities != 0], 0.1)
+            possibilities /= possibilities.sum()
+            if len(possibilities) > 0:
+                pos2 = np.random.choice(n, p=possibilities)
+                ind.ind[pos], ind.ind[pos2] = ind.ind[pos2], ind.ind[pos]
             

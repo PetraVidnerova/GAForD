@@ -22,12 +22,12 @@ def extract_result(filename):
                     i += 1
         df = pd.DataFrame(df_run)
         #        df.to_csv(f"{DIR}/{filename}.csv")
-        return int(fixed_points), -float(f)
+        return float(fixed_points), -float(f)
     except:
         return np.nan, np.nan
 
 df_list = []
-for rew in range(4):
+for rew in 0, 4:
     for sim in range(10):
         for k in range(10):
             fixed_points, f = extract_result(f"rew{rew}_sim{sim}_{k}.log")
