@@ -216,17 +216,15 @@ class Mutation():
         n = ind.n
         m = random.randrange(1,5)
         for _ in range(1):
-            criterion = self.vertices + 10*self.centralities2
+            criterion = self.vertices + self.centralities2
 
             pos = random.randrange(n)
-            """
             xxx = np.abs(criterion - criterion[ind.ind])
             if xxx.sum() == 0:
                 pos = random.randrange(n)
             else:
                 xxx /= xxx.sum()
                 pos = np.random.choice(n, size=1, p=xxx)
-            """
             """
             r = np.random.random()
             if r  < 0.3:
@@ -239,7 +237,7 @@ class Mutation():
             #criterion = self.centralities + self.centralities2 + self.vertices
             cost = np.abs(criterion - criterion[ind.ind[pos]]) #/(criterion+criterion[ind.ind[pos]])
             + np.abs(criterion[ind.ind] - criterion[pos]) #/(criterion[ind.ind]+criterion[pos])
-            - np.abs(criterion - criterion[ind.ind]) #/(criterion+criterion[ind.ind])
+            #- np.abs(criterion - criterion[ind.ind]) #/(criterion+criterion[ind.ind])
             possibilities = 1/(cost + 0.000001)
             possibilities[pos] = 0
             possibilities[ind.ind[pos]] = 0

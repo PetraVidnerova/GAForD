@@ -26,7 +26,7 @@ N = 90 #120 # size of populations
 n = 50
 k = 10 #30   # number of populations
 
-PCX = 0.2 # 0.95
+PCX = 0.1 # 0.95
 PMUT = 0.15
 steps = 100
 
@@ -60,6 +60,7 @@ def islands(sourcename):
     last_best = None
     best_ind = None
     stay_same = 0
+    stay_same_thau = 0
     while True:
 
         #        with multiprocessing.Pool(10) as pool:
@@ -95,7 +96,9 @@ def islands(sourcename):
  #           print(l)
             inds = sorted(l, key=lambda x: (x.F2, x.fitness, x.F), reverse=True)
             print("RESULT:", inds[0].fitness, inds[0].F, inds[0].F2)
-            print(inds[0].ind)
+            for x in inds[0].ind:
+                print(x, end=" ")
+            print()
             best = (inds[0].fitness, inds[0].F, inds[0].F2)
             best_ind_candidate = inds[0]
             if inds[0].F2 == 0:
@@ -104,14 +107,16 @@ def islands(sourcename):
             
             if best == last_best:
                 stay_same += 1
+                stay_same_thau += 1
                 for pop in populations:
-                    pop.thau = 0.1*stay_same/10
-                if stay_same == 1000:
+                    pop.thau = 0.1*stay_same_thau/10
+                if stay_same == 50:
                     print(" No progress. Exiting. ")
                     return # END OF THE WHOLE THING
                 if stay_same % 10 == 0:
                     # restarting
                     print(" * *** * RESTARTING * ** * ")
+                    stay_same_thau = 0
                     for pop in populations:
                         pop.restart()
                     all_elitte = []
@@ -121,6 +126,8 @@ def islands(sourcename):
                         for elitte in elittes:
                             same = False
                             for e in all_elitte:
+                                if e.fitness != elitte.fitness or e.F != elitte.F or e.F2 != elitte.F2:
+                                    continue
                                 if np.all(e.ind == elitte.ind):
                                     same = True
                                     break
@@ -142,10 +149,9 @@ def islands(sourcename):
                             pop.elitte = [all_elitte[i]]
                         else:
                             pop.elitte = []
-                    """        
                             #                    for pop in populations:
                             #                        print(pop.elitte[0].fitness, pop.elitte[0].F, pop.elitte[0].ind)
-                            
+                    """          
                 else:
                     print(" * *** * MIXING POPULATIONS * ** *")
                     # mix populations somehow

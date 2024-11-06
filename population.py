@@ -97,7 +97,7 @@ class Population():
 
             for child in ch1, ch2:
                 if np.random.random() < self.pmut:
-                    if np.random.random() < 0.1 + 0.5*self.thau:
+                    if np.random.random() < 0.1:# + 0.2*self.thau:
                         mutate(child)
                     else:
                         self.mutation.mutate(child) #mutation in place
@@ -112,6 +112,8 @@ class Population():
         for i in self.population:
             same = False
             for e in self.elitte:
+                if e.fitness != i.fitness or e.F != i.F or e.F2 != i.F2:
+                    continue
                 if np.all(e.ind == i.ind):
                     same = True
                     break
@@ -154,6 +156,6 @@ class Population():
         # 3: self.pmut = 0.15 + max(0.5-diversity, 0) * (0.95 - 0.15)
         #        print(diversity, self.pmut)
         #4: self.pmut = 0.15 +  (1 - diversity) * (0.95 - 0.15)
-        self.pmut = 0.2 + 0.4*(1 - diversity)
+        self.pmut = (1 - diversity)
         return float(-self.population[0].fitness), float(-np.mean([i.fitness for i in self.population]))
 

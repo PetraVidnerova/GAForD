@@ -36,7 +36,7 @@ class Fitness:
 
         n, _ = self.matrix.shape
 
-        if (permutation == range(n)).sum() == n: #> n/10:
+        if (permutation == range(n)).sum() > 0 : #> n/10:
             return -1000, 1000, -1000
 
         matrix2 = np.zeros(self.matrix.shape)
@@ -50,7 +50,7 @@ class Fitness:
             np.abs(self.centralities[permutation[bitmap]] - self.centralities[bitmap]).sum() +
             np.abs(self.centralities2[permutation[bitmap]] - self.centralities2[bitmap]).sum() +
             np.abs(self.vertices[permutation[bitmap]] - self.vertices[bitmap]).sum()
-        )
+        )/3
         
         for i, j in zip(*self.matrix.nonzero()):
             x, y = permutation[i], permutation[j]
@@ -62,12 +62,11 @@ class Fitness:
 
         return (
 #            - (np.absolute((self.matrix - matrix2)).sum())/ (n*(n-1)/2 - fix_points*(fix_points-1)/2),
-            -(np.absolute((self.matrix - matrix2)).sum())/ (n*(n-1)/2 - fix_points*(fix_points-1)/2)
-            - 0.5*same_vertices
-            - 0.5*fix_points/n,
-#            - 0.1*(np.absolute((self.matrix - matrix2)).sum())/(n*(n-1)/2),
+            -(np.absolute((self.matrix - matrix2)).sum())/ n*(n-1)/2 #- fix_points*(fix_points-1)/2)
+            - 10*same_vertices,
+            #            - 0.1*(np.absolute((self.matrix - matrix2)).sum())/(n*(n-1)/2),
 #            - (fix_points/n),
 #            - same_vertices - 0.001*fix_points/n - (np.absolute((self.matrix - matrix2)).sum())/ (n*(n-1)/),
             fix_points,
-            - (np.absolute((self.matrix - matrix2)).sum())/2# (n*(n-1)/2)z
+            - (np.absolute((self.matrix - matrix2)).sum())#/2# (n*(n-1)/2)z
             )
