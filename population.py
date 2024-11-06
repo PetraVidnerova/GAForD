@@ -1,6 +1,6 @@
 import random
 import numpy as np
-from individual import Individual, order_crossover, tournament_select, mutate, cyclic_crossover, partially_mapped_crossover
+from individual import Individual, order_crossover, tournament_select, mutate, cyclic_crossover, partially_mapped_crossover, roulette_select
 
 
 class Population():
@@ -19,7 +19,7 @@ class Population():
         for ind in self.population:
             ind.evaluate(fitness.evaluate)
 
-        self.elitte_size = 30
+        self.elitte_size = 8
         self.elitte = []
         self.pmut = None
         self.thau = 0
@@ -106,7 +106,7 @@ class Population():
             new_pop.append(ch1)
             new_pop.append(ch2)
         
-        self.population = sorted(new_pop, key=lambda x: (x.F2,  -x.F, x.fitness), reverse=True)
+        self.population = sorted(new_pop, key=lambda x: (-x.F, x.F2,   x.fitness), reverse=True)
         #self.elitte = self.population[:self.elitte_size]
         self.elitte = []
         for i in self.population:
@@ -122,7 +122,7 @@ class Population():
             if len(self.elitte) >= self.elitte_size // 2:
                 break
         
-        self.population = sorted(new_pop, key=lambda x: (x.fitness,  x.F2, -x.F), reverse=True)
+        self.population = sorted(new_pop, key=lambda x: (-x.F, x.fitness,  x.F2), reverse=True)
         #self.elitte = self.population[:self.elitte_size]
         for i in self.population:
             same = False
@@ -156,6 +156,6 @@ class Population():
         # 3: self.pmut = 0.15 + max(0.5-diversity, 0) * (0.95 - 0.15)
         #        print(diversity, self.pmut)
         #4: self.pmut = 0.15 +  (1 - diversity) * (0.95 - 0.15)
-        self.pmut = (1 - diversity)
+        self.pmut = 0.2 + 0.3*(1 - diversity)
         return float(-self.population[0].fitness), float(-np.mean([i.fitness for i in self.population]))
 

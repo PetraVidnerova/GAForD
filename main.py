@@ -22,11 +22,11 @@ class F():
 #vertices = f.matrix.sum(axis=1)
 #mutation = Mutation(vertices)
 
-N = 90 #120 # size of populations
+N = 60 #120 # size of populations
 n = 50
 k = 10 #30   # number of populations
 
-PCX = 0.1 # 0.95
+PCX = 0.5 #0.5 # 0.95
 PMUT = 0.15
 steps = 100
 
@@ -43,6 +43,7 @@ def islands(sourcename):
 
     mutation = Mutation(
         f.matrix.sum(axis=1),
+        #f.centralities, 
         f.centralities2,
         f.centralities2
     )
@@ -110,7 +111,7 @@ def islands(sourcename):
                 stay_same_thau += 1
                 for pop in populations:
                     pop.thau = 0.1*stay_same_thau/10
-                if stay_same == 50:
+                if stay_same_thau == 50:
                     print(" No progress. Exiting. ")
                     return # END OF THE WHOLE THING
                 if stay_same % 10 == 0:
@@ -179,9 +180,15 @@ def single(sourcename):
 
     f = Fitness(sourcename)
     print(f.matrix)
+    
+    mutation = Mutation(
+        f.matrix.sum(axis=1),
+        f.centralities2,
+        f.centralities2
+    )
 
     
-    pop = Population(n, N, f, None)
+    pop = Population(n, 600, f, mutation)
     gen = 0
     while True:
 
@@ -190,9 +197,9 @@ def single(sourcename):
         print(gen, ":", ret)
         gen += 100
 
-        if gen % 1000 == 0: 
-            inds = sorted([ i for i in pop.elitte], key=lambda x: x.fitness, reverse=True)
-            print(inds[0].fitness, inds[0].F)
+        if gen % 100 == 0: 
+            inds = sorted([ i for i in pop.elitte], key=lambda x: (x.F2, x.fitness), reverse=True)
+            print(inds[0].fitness, inds[0].F, inds[0].F2)
             print(inds[0].ind)
     
 if __name__ == "__main__":

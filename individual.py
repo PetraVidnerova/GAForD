@@ -201,6 +201,14 @@ def tournament_select(population):
     assert best is not None
     return best
 
+def roulette_select(population):
+    f = np.array([-i.fitness for i in population])
+    f = 1/(f+0.0000001)
+    f = f / f.sum()
+    return np.random.choice(population,  p=f)
+
+
+
 def mutate(ind):
 
     pos1, pos2 = np.random.choice(ind.n, size=2, replace=False)
@@ -216,15 +224,18 @@ class Mutation():
         n = ind.n
         m = random.randrange(1,5)
         for _ in range(1):
-            criterion = self.vertices + self.centralities2
-
+            #    criterion = self.vertices  #+ self.centralities2
+            criterion = self.centralities2
+            
             pos = random.randrange(n)
+            """
             xxx = np.abs(criterion - criterion[ind.ind])
             if xxx.sum() == 0:
                 pos = random.randrange(n)
             else:
-                xxx /= xxx.sum()
+                xxx = xxx / xxx.sum()
                 pos = np.random.choice(n, size=1, p=xxx)
+            """
             """
             r = np.random.random()
             if r  < 0.3:
