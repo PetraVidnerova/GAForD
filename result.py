@@ -27,7 +27,7 @@ def extract_result(filename):
         return np.nan, np.nan
 
 df_list = []
-for rew in 2, 3: #0, 1, 4:
+for rew in 0, 1, 4:
     for sim in range(10):
         for k in range(10):
             fixed_points, f = extract_result(f"rew{rew}_sim{sim}_{k}.log")

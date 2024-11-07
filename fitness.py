@@ -23,6 +23,11 @@ class Fitness:
     def __init__(self, filename):
         self.matrix = np.loadtxt(filename, delimiter=",").astype(int)
 
+        self.neibours = [] 
+        for line in self.matrix:
+            self.neibours.append(set(line.nonzero()[0]))
+
+
         #self.vertices = self.matrix.sum(axis=1)
         self.vertices = calculate_degree_centrality(self.matrix)
         
@@ -52,6 +57,7 @@ class Fitness:
             np.abs(self.vertices[permutation[bitmap]] - self.vertices[bitmap]).sum()
         )/3
         
+        inverse_permutation = {permutation[i]:i for i in range(n)}
         for i, j in zip(*self.matrix.nonzero()):
             x, y = permutation[i], permutation[j]
             if x != i or y !=j:
@@ -60,10 +66,20 @@ class Fitness:
 #                fix_points += 1
             matrix2[x, y] = 1
 
+        common = 0
+        for node in range(n):
+            new_node = permutation[node]
+            new_nei = set([inverse_permutation[x] for x in self.neibours[new_node]])
+            common += len(self.neibours[node].intersection(new_nei))#/len(self.neibours[node])
+            
+#        print("--->", (np.absolute((self.matrix - matrix2)).sum())/ n*(n-1)/2,
+#              10*same_vertices,  common)
+
         return (
 #            - (np.absolute((self.matrix - matrix2)).sum())/ (n*(n-1)/2 - fix_points*(fix_points-1)/2),
             -(np.absolute((self.matrix - matrix2)).sum())/ n*(n-1)/2 #- fix_points*(fix_points-1)/2)
-            - 10*same_vertices,
+            - 10*same_vertices
+            + 0.5*common,
             #            - 0.1*(np.absolute((self.matrix - matrix2)).sum())/(n*(n-1)/2),
 #            - (fix_points/n),
 #            - same_vertices - 0.001*fix_points/n - (np.absolute((self.matrix - matrix2)).sum())/ (n*(n-1)/),
