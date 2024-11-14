@@ -1,3 +1,4 @@
+import pickle
 import networkx as nx
 import numpy as np
 
@@ -20,8 +21,14 @@ def calculate_degree_centrality(A):
     # return np.array([x for x in nx.pagerank(g).values()])
 
 class Fitness:
-    def __init__(self, filename):
-        self.matrix = np.loadtxt(filename, delimiter=",").astype(int)
+    def __init__(self, filename, sim):
+        
+        with open(filename, "rb") as f:
+            source = pickle.load(f)
+
+        self.matrix = source[sim]
+        
+        #        self.matrix = np.loadtxt(filename, delimiter=",").astype(int)
 
         #self.vertices = self.matrix.sum(axis=1)
         self.vertices = calculate_degree_centrality(self.matrix)
@@ -36,7 +43,7 @@ class Fitness:
 
         n, _ = self.matrix.shape
 
-        if (permutation == range(n)).sum() > 0 : #> n/10:
+        if (permutation == range(n)).sum() > 0: #> n/10:
             return -1000, 1000, -1000
 
         matrix2 = np.zeros(self.matrix.shape)
@@ -46,11 +53,11 @@ class Fitness:
 
         bitmap = permutation != range(n)
         #sam_vertices = (self.vertices[permutation] == self.vertices).sum()
-        same_vertices = (
+        same_vertices = n*(
             np.abs(self.centralities[permutation[bitmap]] - self.centralities[bitmap]).sum() +
             np.abs(self.centralities2[permutation[bitmap]] - self.centralities2[bitmap]).sum() +
             np.abs(self.vertices[permutation[bitmap]] - self.vertices[bitmap]).sum()
-        )/3
+        )/(3*bitmap.sum())
         
         for i, j in zip(*self.matrix.nonzero()):
             x, y = permutation[i], permutation[j]

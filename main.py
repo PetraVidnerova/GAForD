@@ -1,5 +1,6 @@
 import multiprocessing
 import random
+import time 
 
 import click
 import numpy as np
@@ -36,11 +37,21 @@ def run(pop):
 
 @click.command()
 @click.argument('sourcename')
-def islands(sourcename):
+@click.argument('sim')
+def main(sourcename, sim):
+    s = time.time()
+    t = islands(sourcename, sim)
+    e = time.time()
+    print(f"Computation time: {e-s:.2f}s. Solution found in: {t-s:.2f}s.")
     
-    f = Fitness(sourcename)
+def islands(sourcename, sim):
+
+    f = Fitness(sourcename, int(sim))
     print(f.matrix)
 
+    global n
+    n = len(f.matrix)
+    
     mutation = Mutation(
         f.matrix.sum(axis=1),
         f.centralities2,
@@ -61,6 +72,8 @@ def islands(sourcename):
     best_ind = None
     stay_same = 0
     stay_same_thau = 0
+    time_to_sol = 0
+    
     while True:
 
         #        with multiprocessing.Pool(10) as pool:
@@ -103,7 +116,7 @@ def islands(sourcename):
             best_ind_candidate = inds[0]
             if inds[0].F2 == 0:
                 print("Solution found.")
-                return
+                return time.time()
             
             if best == last_best:
                 stay_same += 1
@@ -112,7 +125,7 @@ def islands(sourcename):
                     pop.thau = 0.1*stay_same_thau/10
                 if stay_same == 50:
                     print(" No progress. Exiting. ")
-                    return # END OF THE WHOLE THING
+                    return time_to_sol # END OF THE WHOLE THING
                 if stay_same % 10 == 0:
                     # restarting
                     print(" * *** * RESTARTING * ** * ")
@@ -169,9 +182,12 @@ def islands(sourcename):
                 last_best = best    
                 stay_same = 0
                 best_ind = best_ind_candidate
-            
+                time_to_sol = time.time()
+    return time_to_sol
 #        if gen >= 10000:
 #            return
+
+
         
 @click.command()
 @click.argument('sourcename')
@@ -197,5 +213,5 @@ def single(sourcename):
     
 if __name__ == "__main__":
 
-    islands()
+    main()
 #    single()
