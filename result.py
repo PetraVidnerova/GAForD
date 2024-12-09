@@ -3,6 +3,7 @@ import pandas as pd
 import numpy as np
 
 DIR = sys.argv[1]
+PREFIX = sys.argv[2]
 
 def extract_result(filename):
     df_run = []
@@ -27,31 +28,36 @@ def extract_result(filename):
         return np.nan, np.nan
 
 df_list = []
-for rew in 0, 1, 4:
-    for sim in range(10):
-        for k in range(10):
-            fixed_points, f = extract_result(f"rew{rew}_sim{sim}_{k}.log")
-            df_list.append(
-                {
-                    "rew": rew,
-                    "sim": sim,
-                    "k": k,
-                    "F": f,
-                    "fixed_points": fixed_points
-                }
-            )
+#for rew in 0, 1, 2, 3:
+for sim in range(39):
+    for k in range(10):
+        fixed_points, f = extract_result(f"{PREFIX}_sim{sim}_{k}.log")
+        assert fixed_points == 0, f"{PREFIX}_sim{sim}_{k}.log"
+        df_list.append(
+            {
+                "sim": sim,
+                "k": k,
+                "F": f,
+#                "fixed_points": fixed_points
+            }
+        )
 
 df = (
     pd.DataFrame(df_list)
-    .pivot(index=["rew", "sim"], columns="k")
+    .pivot(index=["sim"], columns="k")
     .swaplevel(0, 1, axis=1)
 )
-#print(df)
+df.columns = df.columns.droplevel(1)
+print(df)
+
+df.to_csv(f"export_results/GA_full_results_{PREFIX}.csv", index=False, header=False)
+
 
 df = (
     pd.DataFrame(df_list)
-    .groupby(["rew", "sim"])["F"]
+    .groupby(["sim"])["F"]
     .agg([ "min",  "median", "mean", "max"])
 )
 print(df)
+df.to_csv(f"export_results/GA_result_statistics_{PREFIX}.csv")
 

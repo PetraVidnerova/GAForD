@@ -44,7 +44,7 @@ class Fitness:
         n, _ = self.matrix.shape
 
         if (permutation == range(n)).sum() > 0: #> n/10:
-            return -1000, 1000, -1000
+            return -1000000, 1000000, -1000000
 
         matrix2 = np.zeros(self.matrix.shape)
         matrix3 = np.zeros(self.matrix.shape)
